@@ -35,7 +35,7 @@ if not path.exists(dayn(i - 1) + 'p2.py'): # move from p1 to p2
     commit_curr_dir_contents(i, 1)
     dir = dayn(i)
     touch(dir + 'p2.py')
-    update_debug_config(i, 2)
+    update_debug_config(i, 1)
     vscode(dir + 'p2.py')
 else:
     commit_curr_dir_contents(i, 2)
