@@ -6,17 +6,17 @@ EMPTY=0
 ROCK=1
 SAND=2
 
-class SandFall:
+class SandTracer:
     def __init__(self, cave):
         self.cave = cave
-        self.check = BoundsChecker((1, 0), (len(cave) - 2, len(cave[0]) - 1))
+        self.check = BoundsChecker((1, 0), (len(cave) - 2, len(cave[0]) - 2))
         pass
 
-    def fall(self, start):
+    def seed(self, start):
         (self.x, self.y) = start
         while self.__fall_one():
             pass
-        return self.check((self.x, self.y))
+        return (self.x, self.y) if self.check((self.x, self.y)) else None
 
     def __fall_one(self):
         if cave[self.x][self.y + 1] == EMPTY:
@@ -30,6 +30,35 @@ class SandFall:
         else:
             return False
         return self.check((self.x, self.y))
+
+class SeedGrower:
+    def __init__(self, cave):
+        self.sands = 0
+        self.cave = cave
+
+    def grow(self, seed):
+        x, y = seed
+        startlx, startly = seed
+        startrx, startry = tuple_add(seed, (1, 0))
+        while self.add_diagonal((startlx, y), (x, startly)):
+            startlx -= 1
+            startly -= 1
+            if not self.add_diagonal((startrx, y), (x, startry)):
+                return
+            startrx += 1
+            startry -= 1
+
+    def add_diagonal(self, start, stop):
+        x, y = start
+        if self.cave[x][y + 1] == EMPTY:
+            return False
+        for x, y in tuple_range(start, stop):
+            if self.cave[x][y] != EMPTY:
+                return False
+        for x, y in tuple_range(start, stop):
+            self.sands += 1
+            self.cave[x][y] = SAND
+        return True
 
 
 
@@ -64,15 +93,14 @@ for path in paths:
             cave[x][y] = ROCK
 
 start = transform((500, 0))
-fall = SandFall(cave)
-sands = 0
-while fall.fall(start):
-    cave[fall.x][fall.y] = SAND
-    sands += 1
+tracer = SandTracer(cave)
+grower = SeedGrower(cave)
+while seed := tracer.seed(start):
+    grower.grow(seed)
 
 for y in range(rows + 1):
     for x in range(cols + 2):
         print(c[cave[x][y]], end='')
     print()
 
-print (sands)
+print(grower.sands)
