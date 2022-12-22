@@ -1,0 +1,6 @@
+1d version
+- if:
+    - sensors are sorted
+    - there is some sensor B in 1..N-1 which sensor N does not overlap with
+- then:
+    - sensor N only needs to check the sensors in 1..B-1 which overlap with B
