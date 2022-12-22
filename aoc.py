@@ -1,4 +1,4 @@
-# Script for running my AoC solutions. This lets me treat solutions as packages
+Script for running my AoC solutions. This lets me treat solutions as packages
 # so that I can separate some code into different files if I feel it might be
 # useful on other days.
 
@@ -18,4 +18,4 @@ args = parser.parse_args()
 
 copy(f'day{str(args.day).zfill(2)}/input.txt', 'input.txt')
 
-import_module(f"day{str(args.day).zfill(2)}.p{args.part}{args.subpart}")
+exec(f"from day{str(args.day).zfill(2)}.p{args.part}{args.subpart} import *")
