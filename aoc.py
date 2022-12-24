@@ -1,4 +1,4 @@
-Script for running my AoC solutions. This lets me treat solutions as packages
+# Script for running my AoC solutions. This lets me treat solutions as packages
 # so that I can separate some code into different files if I feel it might be
 # useful on other days.
 
