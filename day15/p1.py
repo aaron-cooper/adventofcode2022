@@ -1,6 +1,7 @@
 import re
 from functools import cmp_to_key
 from queue import deque
+from sortedcontainers import SortedSet
 
 class Sensor:
     def __init__(self, x: int, y: int, point):
@@ -55,9 +56,16 @@ def read_input():
     return sensors, beacons
 
 class Overlap:
-    def __init__(self, interval=None, sensors=set()):
-        self.interval = interval
-        self.sensors = sensors
+    def __init__(self, sensor=None, interval=None, sensors=None):
+        if sensor and not interval and not sensors:
+            self.interval = sensor.coverage()
+            self.sensors = set()
+            self.sensors.add(sensor)
+        elif interval and sensors and not sensor:
+            self.interval = interval
+            self.sensors = sensors
+        else:
+            raise ValueError('specify sensor OR interval and sensors; not both')
 
     def intersection(self, left, right):
         # if one of them is None, return the other. If both are None, return None
@@ -65,28 +73,42 @@ class Overlap:
             return right
         if not right:
             return left
-        return (max(left[0], right[0]), min(left[1], right[1]))
+        new_interval = (max(left[0], right[0]), min(left[1], right[1]))
+        return new_interval if new_interval[0] <= new_interval[1] else None
 
-    def intersect(self, sensor):
-        new_interval = self.intersection(self.interval, sensor.coverage())
-        new_sensors = set(self.sensors)
-        new_sensors.add(sensor)
+    def intersect(self, other):
+        if not (new_interval := self.intersection(self.interval, other.interval)):
+            return None
+        new_sensors = self.sensors.union(other.sensors)
         return type(self)(interval=new_interval, sensors=new_sensors)
+
+    def lowest(self):
+        return self.interval[0]
 
 class UnionFinder:
     def spots_covered(self, sensors):
-        sensors.sort()
-        overlappers = dict(map(lambda s: (s, set()), sensors))
-        overlaps = [Overlap().intersect(sensors[0])]
-        for i, sensor in enumerate(sensors, 1):
-            overlap = Overlap().intersect(sensor)
-            overlaps.append(overlap)
-            tocheck = sensors[i - 1]
-            while tocheck:
-                if tocheck.highest() >= sensor.lowest(): #overlap
-                    
+        overlap_key = lambda o: o.lowest()
+        overlapers = dict()
+        singleoverlaps = SortedSet([Overlap(sensor=s) for s in sensors], overlap_key)
+        overlaps = [set(singleoverlaps), set()]
 
-
-
-
-
+        # break this down into methods ...
+        for i, initial_overlap in enumerate(singleoverlaps):
+            overlapers[initial_overlap] = set()
+            for j in reversed(range(i)):
+                if new_overlap := initial_overlap.intersect(singleoverlaps[j]):
+                    overlaps[1].add(new_overlap)
+                    overlapers[initial_overlap].add(singleoverlaps[j])
+                else: # if we don't overlap with singleoverlaps[j], then we only
+                      # need to check overlaps which do overlap it
+                    for overlap in overlapers[singleoverlaps[j]]:
+                        if new_overlap := initial_overlap.intersect(overlap):
+                            overlaps[1].add(new_overlap)
+                            overlapers[initial_overlap].add(singleoverlaps[j])
+                    break
+        covered = 0
+        for o in overlaps[0]:
+            covered += o.interval[1] - o.interval[0] + 1
+        for o in overlaps[1]:
+            covered -= o.interval[1] - o.interval[0] + 1
+        return covered
