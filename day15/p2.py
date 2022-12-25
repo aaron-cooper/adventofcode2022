@@ -1,5 +1,24 @@
 import re
 
+class PerimeterPoint:
+    def __init__(self, loc, centre):
+        self.x, self.y = loc
+        self.cx, self.cy = centre
+
+    def __lt__(self, other):
+        if self.y >= self.cy and other.y >= self.cy:
+            return self.x < other.x
+        elif self.y < self.cy and other.y < self.cy:
+            return self.x > other.x
+        else:
+            return self.y >= self.cy
+
+    def centre(self):
+        return self.cx, self.cy
+
+    def loc(self):
+        return self.x, self.y
+
 class Sensor:
     def __init__(self, x, y, r):
         self.x = x
@@ -50,31 +69,4 @@ def read_input():
             beacons.add((bx, by))
     return sensors, beacons
 
-
-target = 2000000
-
 sensors, _ = read_input()
-
-minx = 0
-miny = 0
-maxx = 4000000
-maxy = 4000000
-
-bounds = Bound(minx, miny, maxx, maxy)
-
-nsensors = 0
-print (','.join(map(lambda c: str(c), bounds.corners)))
-for s in sensors:
-    if (bounds.contains(s.loc())):
-        corners = [(s.x - s.r, s.y), (s.x, s.y + s.r), (s.x + s.r, s.y), (s.x, s.y - s.r)]
-        print (f"polygon({','.join(map(lambda c: str(c), corners))})")
-        nsensors += 1
-        continue
-    for c in bounds.corners:
-        if s.contains(c):
-            corners = [(s.x - s.r, s.y), (s.x, s.y + s.r), (s.x + s.r, s.y), (s.x, s.y - s.r)]
-            print (f"polygon({','.join(map(lambda c: str(c), corners))})")
-            nsensors += 1
-            break
-
-print("copy above lines into desmos and look for part of the grid that isn't covered")
