@@ -1,8 +1,4 @@
 import re
-from functools import cmp_to_key
-from queue import deque
-from sortedcontainers import SortedSet
-from helpers.bsearch import bsearch
 
 class Sensor:
     def __init__(self, x: int, y: int, point):
@@ -121,8 +117,6 @@ class UnionFinder:
         overlaps = []
         already_added = set()
         for i, overlap in enumerate(previous):
-            ind = bsearch(self.initial_overlaps, overlap)
-            ind = ~ind if ind < 0 else ind
             for other in reversed(self.initial_overlaps[0:i]):
                 new_overlap = overlap.intersect(other)
                 if new_overlap and new_overlap.sensors != overlap.sensors and new_overlap.sensors not in already_added:
