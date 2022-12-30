@@ -160,17 +160,6 @@ class PerimeteredDiamond(Diamond):
         r = abs(beacon_point[0] - x) + abs(beacon_point[1] - y) + 1 # + 1 because we want the points just outside hte border
         return cls(x, y, r)
 
-class Bound:
-    def __init__(self, minx, miny, maxx, maxy):
-        self.minx = minx
-        self.miny = miny
-        self.maxx = maxx
-        self.maxy = maxy
-        self.corners = [(minx, miny), (maxx, miny), (maxx, maxy), (minx, maxy)]
-
-    def contains(self, point):
-        return self.minx <= point[0] and point[0] <= self.maxx and self.miny <= point[1] and point[1] <= self.maxy
-
 def read_input():
     with open('input.txt', 'r') as f:
         sensors=[]
