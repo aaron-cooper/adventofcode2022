@@ -154,11 +154,22 @@ class PerimeteredDiamond(Diamond):
     def __repr__(self):
         return f'{type(self).__name__}(x={self.x}, y={self.y}, r={self.r})'
 
-    @classmethod
-    def from_sensor_and_beacon(cls, sensor_point, beacon_point):
-        x, y = sensor_point
-        r = abs(beacon_point[0] - x) + abs(beacon_point[1] - y) + 1 # + 1 because we want the points just outside hte border
-        return cls(x, y, r)
+class DiamondFactory:
+    def __init__(self, diamond_class):
+        self.diamond_class = diamond_class
+
+    def create(self, sensor_loc, beacon_loc):
+        r = abs(beacon_loc[0] - sensor_loc[0]) + abs(beacon_loc[1] - sensor_loc[1])
+        return self.diamond_class(sensor_loc[0], sensor_loc[1], r)
+
+class DiamondBorderFactory:
+    def __init__(self, diamond_class):
+        self.diamond_class = diamond_class
+
+    def create(self, sensor_loc, beacon_loc):
+        r = abs(beacon_loc[0] - sensor_loc[0]) + abs(beacon_loc[1] - sensor_loc[1]) + 1 # + 1 so that the edges of the diamond are the border
+        return self.diamond_class(sensor_loc[0], sensor_loc[1], r)
+
 
 def read_input():
     with open('input.txt', 'r') as f:
