@@ -130,6 +130,12 @@ class Diamond:
     def bottom(self):
         return (self.x, self.y - self.r)
 
+    def corners(self):
+        yield self.left()
+        yield self.top()
+        yield self.right()
+        yield self.bottom()
+
     def loc(self):
         return (self.x, self.y)
 
