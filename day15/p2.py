@@ -202,17 +202,18 @@ class DiamondLookup:
 
 def read_input():
     with open('input.txt', 'r') as f:
-        sensors=[]
-        beacons=set()
+        diamond_factory = DiamondFactory(Diamond)
+        border_factory = DiamondBorderFactory(PerimeteredDiamond)
+
+        diamonds = []
+        lookup = DiamondLookup()
+
         for line in map(lambda l: l.strip(), f):
             m = re.search(r"Sensor at x=([+-]?\d+), y=([+-]?\d+): closest beacon is at x=([+-]?\d+), y=([+-]?\d+)", line)
-            sx = int(m.group(1))
-            sy = int(m.group(2))
-            bx = int(m.group(3))
-            by = int(m.group(4))
-            sensors.append(Diamond.from_sensor_and_beacon((sx, sy), (bx, by)))
-            beacons.add((bx, by))
-    return sensors, beacons
+            sx, sy, bx, by = m.groups()
+            diamonds.append(border_factory.create((sx, sy), (bx, by)))
+            lookup.add(diamond_factory.create((sx, sy), (bx, by)))
+        return diamonds, lookup
 
 # sensors, _ = read_input()
 
