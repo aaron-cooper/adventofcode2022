@@ -48,13 +48,14 @@ class TestPerimeterPoint(unittest.TestCase):
 
 class TestSensor(unittest.TestCase):
     def setUp(t):
+        t.pdiamond = p2.PerimeteredDiamond
         t.diamond = p2.Diamond
 
     def test_overlaps_returnsFalseWhenNoOverlap(t):
         cases = [
-            (t.diamond(0, 0, 0), t.diamond(0, 1, 0)),
-            (t.diamond(5, 5, 3), t.diamond(9, 8, 3)),
-            (t.diamond(9, 8, 3), t.diamond(5, 5, 3))
+            (t.pdiamond(0, 0, 0), t.diamond(0, 1, 0)),
+            (t.pdiamond(5, 5, 3), t.diamond(9, 8, 3)),
+            (t.pdiamond(9, 8, 3), t.diamond(5, 5, 3))
         ]
         for left, right in cases:
             with t.subTest(left=left, right=right):
@@ -62,16 +63,16 @@ class TestSensor(unittest.TestCase):
 
     def test_overlaps_returnsTrueWhenOverlap(t):
         cases = [
-            (t.diamond(5, 5, 3), t.diamond(8, 8, 3)),
-            (t.diamond(8, 8, 3), t.diamond(5, 5, 3)),
-            (t.diamond(5, 5, 3), t.diamond(8, 8, 4)),
-            (t.diamond(8, 8, 4), t.diamond(5, 5, 3)),
-            (t.diamond(3, 3, 3), t.diamond(3, 6, 3)),
-            (t.diamond(3, 6, 3), t.diamond(3, 3, 3)),
-            (t.diamond(3, 3, 3), t.diamond(3, 5, 3)),
-            (t.diamond(3, 5, 3), t.diamond(3, 3, 3)),
-            (t.diamond(0, 0, 3), t.diamond(1, 1, 6)),
-            (t.diamond(1, 1, 6), t.diamond(0, 0, 3))
+            (t.pdiamond(5, 5, 3), t.diamond(8, 8, 3)),
+            (t.pdiamond(8, 8, 3), t.diamond(5, 5, 3)),
+            (t.pdiamond(5, 5, 3), t.diamond(8, 8, 4)),
+            (t.pdiamond(8, 8, 4), t.diamond(5, 5, 3)),
+            (t.pdiamond(3, 3, 3), t.diamond(3, 6, 3)),
+            (t.pdiamond(3, 6, 3), t.diamond(3, 3, 3)),
+            (t.pdiamond(3, 3, 3), t.diamond(3, 5, 3)),
+            (t.pdiamond(3, 5, 3), t.diamond(3, 3, 3)),
+            (t.pdiamond(0, 0, 3), t.diamond(1, 1, 6)),
+            (t.pdiamond(1, 1, 6), t.diamond(0, 0, 3))
         ]
         for left, right in cases:
             with t.subTest(left=left, right=right):
