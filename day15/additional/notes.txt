@@ -1,0 +1,23 @@
+- combine the list of valid intersections with the list of overlapping corners
+  (in clockwise order)
+
+- rotate until the first and last points are intersection points
+
+- this don't work if if left is fully covered by right, in that case we don't
+  need to do this anyway, we can just delete the full interval
+
+- finding overlappers efficiently:
+  - have 2 SortedSet<point>
+    - one is sorted by x then y
+    - one is sorted by y then x
+    - they each contain all the points from all the diamonds
+  - have a dict<point, iter<diamond>>
+    - maps a point to set (or whatever) of diamonds that have that point for a
+      corner
+  
+  - to find the intersectors of a diamond D:
+    - irange setx from D.left to D.right
+    - irange sety from D.bottom to D.top
+    - intersect the two
+    - for the intersection, check each corner to see if it's in D
+    - if it is, retrieve that corner's diamond(s) from a 
