@@ -232,7 +232,7 @@
   {
     "id": "6",
     "type": "expression",
-    "latex": "d=8",
+    "latex": "d=3",
     "color": "#c74440",
     "lineStyle": "SOLID",
     "lineWidth": "",
@@ -264,7 +264,7 @@
     },
     "sliderBounds": {
       "min": "0",
-      "max": "b\\ +\\ r\\ +u+\\ 1",
+      "max": "a\\ +\\ r\\ +\\ u\\ +\\ 1",
       "step": "1"
     },
     "playing": false
@@ -272,7 +272,7 @@
   {
     "id": "7",
     "type": "expression",
-    "latex": "u=3",
+    "latex": "u=4",
     "color": "#2d70b3",
     "lineStyle": "SOLID",
     "lineWidth": "",
@@ -310,10 +310,10 @@
     "playing": false
   },
   {
-    "id": "23",
+    "id": "26",
     "type": "expression",
-    "latex": "(\\operatorname{ceil}(-(-a+b-c-d+r+u)/2),\\operatorname{ceil}((-a+b+c+d+r-u)/2))",
-    "color": "#388c46",
+    "latex": "(\\operatorname{floor}(-(-a-b-c+d+r-u)/2),\\operatorname{ceil}(-(-a-b+c-d+r+u)/2))",
+    "color": "#c74440",
     "lineStyle": "SOLID",
     "lineWidth": "",
     "lineOpacity": "",
@@ -380,10 +380,10 @@
     "playing": false
   },
   {
-    "id": "29",
+    "id": "23",
     "type": "expression",
-    "latex": "(\\operatorname{ceil}((a+b+c-d+r-u)/2),\\operatorname{floor}((a+b-c+d+r+u)/2))",
-    "color": "#6042a6",
+    "latex": "(\\operatorname{ceil}(-(-a+b-c-d+r+u)/2),\\operatorname{ceil}((-a+b+c+d+r-u)/2))",
+    "color": "#388c46",
     "lineStyle": "SOLID",
     "lineWidth": "",
     "lineOpacity": "",
@@ -450,10 +450,10 @@
     "playing": false
   },
   {
-    "id": "28",
+    "id": "29",
     "type": "expression",
-    "latex": "(\\operatorname{floor}((a-b+c+d+r+u)/2),\\operatorname{floor}(-(a-b-c-d+r-u)/2))",
-    "color": "#388c46",
+    "latex": "(\\operatorname{ceil}((a+b+c-d+r-u)/2),\\operatorname{floor}((a+b-c+d+r+u)/2))",
+    "color": "#6042a6",
     "lineStyle": "SOLID",
     "lineWidth": "",
     "lineOpacity": "",
@@ -520,10 +520,10 @@
     "playing": false
   },
   {
-    "id": "26",
+    "id": "28",
     "type": "expression",
-    "latex": "(\\operatorname{floor}(-(-a-b-c+d+r-u)/2),\\operatorname{ceil}(-(-a-b+c-d+r+u)/2))",
-    "color": "#c74440",
+    "latex": "(\\operatorname{floor}((a-b+c+d+r+u)/2),\\operatorname{floor}(-(a-b-c-d+r-u)/2))",
+    "color": "#388c46",
     "lineStyle": "SOLID",
     "lineWidth": "",
     "lineOpacity": "",

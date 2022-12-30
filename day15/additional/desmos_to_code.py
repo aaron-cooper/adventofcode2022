@@ -40,7 +40,7 @@ for expression in expressions:
     ysum = ''.join(map(lambda l: expression_chars[l] if l in expression_chars else l, ysum))
     code = [
         f"class PointLocator{i}(PointLocator):",
-        f"    def locate(self, x1, y1, r1, x2, y2, r2):",
+        f"    def __call__(self, x1, y1, r1, x2, y2, r2):",
         f"        return (self.{xfn}_div({xsum}), self.{yfn}_div({ysum}))"
     ]
     code = '\n'.join(code)
