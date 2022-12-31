@@ -2,55 +2,63 @@ import unittest
 from . import p2
 import sys
 
-
-class TestPerimeterPointComparer(unittest.TestCase):
+class TestPerimeterToIntConverter(unittest.TestCase):
     def setUp(t):
-        t.comparer = p2.PerimeterPointComparer
         t.diamond = p2.Diamond
+        t.converter = p2.PerimeterPointToIntConverter
 
-    def test_returnsZeroWhenPointsEqual(t):
-        cases = [
-            (2, 5),
-            (4, 7),
-            (5, 8),
-            (7, 6),
-            (8, 5),
-            (6, 3),
-            (5, 2),
-            (4, 3)
-        ]
-        sut = t.comparer(t.diamond(5, 5, 3))
-        for case in cases:
-            with t.subTest(sut=sut, case=case):
-                t.assertEqual(sut(case, case), 0)
+    def test_convertsCorrectlyWithZeroRadiusDiamond(t):
+        d = t.diamond(99, 100, 0)
+        sut = t.converter(d)
+        with t.subTest("to"):
+            t.assertEqual(sut((99, 100)), 0)
+        with t.subTest("from"):
+            t.assertEqual(sut.back(0), (99, 100))
 
-    def test_returnsNegativeWhenLeftIsLeft(t):
+    def test_convertsCorrectlyWithRadiusOneDiamond(t):
+        d = t.diamond(5, 8, 1)
+        sut = t.converter(d)
         cases = [
-            ((-2, 0), (2, 0)),
-            ((0, 2), (0, -2)),
-            ((-2, 0), (0, 2)),
-            ((-2, 0), (0, -2)),
-            ((1, 1), (-1, -1)),
-            ((-2, 0), (-1, -1))
+            [(4, 8), 0],
+            [(5, 9), 1],
+            [(6, 8), 2],
+            [(5, 7), 3]
         ]
-        sut = t.comparer(t.diamond(0, 0, 2))
-        for left, right in cases:
-            with t.subTest(sut=sut, left=left, right=right):
-                t.assertLess(sut(left, right), 0)
 
-    def test_returnsPositiveWhenLeftIsMore(t):
+        for val, converted in cases:
+            with t.subTest(f'converting {val}, expecting {converted}'):
+                t.assertEqual(sut(val), converted)
+
+        for converted, val in cases:
+            with t.subTest(f'converting {val}, expecting {converted}'):
+                t.assertEqual(sut.back(val), converted)
+
+    def test_convertsCorrectlyWithNominalRadiusDiamond(t):
+        d = t.diamond(5, 5, 3)
+        sut = t.converter(d)
         cases = [
-            ((2, 0), (-2, 0)),
-            ((0, -2), (0, 2)),
-            ((0, 2), (-2, 0)),
-            ((0, -2), (-2, 0)),
-            ((-1, -1), (1, 1)),
-            ((-1, -1), (-2, 0)),
+            [(2, 5), 0],
+            [(3, 6), 1],
+            [(4, 7), 2],
+            [(5, 8), 3],
+            [(6, 7), 4],
+            [(7, 6), 5],
+            [(8, 5), 6],
+            [(7, 4), 7],
+            [(6, 3), 8],
+            [(5, 2), 9],
+            [(4, 3), 10],
+            [(3, 4), 11]
         ]
-        sut = t.comparer(t.diamond(0, 0, 2))
-        for left, right in cases:
-            with t.subTest(sut=sut, left=left, right=right):
-                t.assertGreater(sut(left, right), 0)
+
+        for val, converted in cases:
+            with t.subTest(f'converting {val}, expecting {converted}'):
+                t.assertEqual(sut(val), converted)
+
+        for converted, val in cases:
+            with t.subTest(f'converting {val}, expecting {converted}'):
+                t.assertEqual(sut.back(val), converted)
+
 
 class TestSensor(unittest.TestCase):
     def setUp(t):

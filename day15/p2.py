@@ -133,22 +133,25 @@ class PerimeterPointToIntConverter:
             else:
                 return 3 * self.diamond.r + self.diamond.x - x
 
-class PerimeterPointComparer:
-    def __init__(self, diamond):
-        self.diamond = diamond
-        self.comparer = PerimeterPointToIntConverter(diamond)
+    def back(self, n):
+        if n >= (rx3 := 3 * self.diamond.r):
+            return (rx3 + self.diamond.x - n, n - 4 * self.diamond.r + self.diamond.y)
+        elif n > (rx2 := 2 * self.diamond.r):
+            return (rx3 + self.diamond.x - n, rx2 + self.diamond.y - n)
+        elif n > (r := self.diamond.r):
+            return (self.diamond.x + n - r, self.diamond.y + rx2 - n)
+        else:
+            return (self.diamond.x + n - r, self.diamond.y + n)
 
-    def __repr__(self):
-        return f'{type(self).__name__}({self.diamond})'
-
-    def __call__(self, left, right):
-        return self.comparer(left) - self.comparer(right)
 
 class PerimeteredDiamond(Diamond):
     def __init__(self, x, y, r):
         super().__init__(x, y, r)
         self.overlappers = set()
-        self.perimeter = (self.left(), (x - r + 1, y - 1))
+        self.converter = PerimeterPointToIntConverter(self)
+        self.by_start = lambda i: i[0]
+        self.by_stop = lambda i: i[1]
+        self.perimeter = [(0, 4 * r - 1)]
 
     def overlaps(self, other):
         return self.distance(other.loc()) <= self.r + other.r
@@ -171,8 +174,27 @@ class PerimeteredDiamond(Diamond):
         if (diff := self.top()[1] - maxy) >= 0:
             self.remove_from_perimeter((self.x - diff, maxy), (self.x + diff, maxy))
 
-    def remove_from_perimeter(self, start, stop):
-        raise NotImplementedError()
+    def remove_from_perimeter(self, interval):
+        interval = tuple(map(self.converter, interval))
+        if (i := bsearch(self.perimeter, interval, key=self.by_start)) < 0:
+            i = ~i - 1
+        if (j := bsearch(self.perimeter, interval, key=self.by_stop)) < 0:
+            j = ~j
+
+        for j in range(j - 1, i, -1):
+            if j < len(self.perimeter):
+                self.perimeter.pop(j)
+
+        if 0 <= j and j < len(self.perimeter):
+            self.perimeter[j][0] = interval[1] + 1
+            if self.perimeter[j][1] < self.perimeter[j][0]:
+                self.perimeter.pop(j)
+        if 0 <= i and i < len(self.perimeter):
+            self.perimeter[i][1] = interval[0] - 1
+            if self.perimeter[i][1] < self.perimeter[i][0]:
+                self.perimeter.pop(i)
+        return bool(len(self.perimeter))
+
 
     def __repr__(self):
         return f'{type(self).__name__}(x={self.x}, y={self.y}, r={self.r})'
