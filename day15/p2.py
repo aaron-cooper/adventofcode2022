@@ -156,7 +156,19 @@ class PerimeteredDiamond(Diamond):
                 self.overlappers.add(sensor)
                 sensor.overlappers.add(self)
 
-    def remove_overlapping_perimeter(self, other):
+    def constrain_perimeter(self, min, max):
+        minx, miny = min
+        maxx, maxy = max
+        if (diff := minx - self.left()[0]) >= 0:
+            self.remove_from_perimeter((minx, self.y - diff), (minx, self.y + diff))
+        if (diff := self.right()[0] - maxx) >= 0:
+            self.remove_from_perimeter((maxx, self.y + diff), (maxx, self.y - diff))
+        if (diff := miny - self.bottom()[1]) >= 0:
+            self.remove_from_perimeter((self.x + diff, miny), (self.x - diff, miny))
+        if (diff := self.top()[1] - maxy) >= 0:
+            self.remove_from_perimeter((self.x - diff, maxy), (self.x + diff, maxy))
+
+    def remove_from_perimeter(self, start, stop):
         raise NotImplementedError()
 
     def __repr__(self):
