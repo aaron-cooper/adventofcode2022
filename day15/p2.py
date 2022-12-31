@@ -4,31 +4,6 @@ from collections import deque
 from sortedcontainers import SortedSet
 from itertools import chain
 
-class PerimeterPoint:
-    def __init__(self, loc, centre):
-        self.x, self.y = loc
-        self.cx, self.cy = centre
-
-    def __lt__(self, other):
-        if self.y >= self.cy and other.y >= self.cy:
-            return self.x < other.x
-        elif self.y < self.cy and other.y < self.cy:
-            return self.x > other.x
-        else:
-            return self.y >= self.cy
-
-    def centre(self):
-        return self.cx, self.cy
-
-    def loc(self):
-        return self.x, self.y
-
-class Interval:
-    def __init__(self, sensor):
-        self.sensor = sensor
-        self.start = (sensor.x - sensor.r, sensor.y)
-        self.stop = (sensor.x - sensor.r + 1, sensor.y - 1)
-
 class PointLocator:
     def ceil_div(self, n):
         return (n >> 1) + (n & 1)
@@ -141,11 +116,39 @@ class Diamond:
     def loc(self):
         return (self.x, self.y)
 
+class PerimeterPointToIntConverter:
+    def __init__ (self, diamond):
+        self.diamond = diamond
+
+    def __call__(self, p):
+        x, y = p
+        if y >= self.diamond.y:
+            if x <= self.diamond.x:
+                return y - self.diamond.y
+            else:
+                return self.diamond.r + x - self.diamond.x
+        else:
+            if y >= self.diamond.y:
+                return 2 * self.diamond.r + self.diamond.y - y
+            else:
+                return 3 * self.diamond.r + self.diamond.x - x
+
+class PerimeterPointComparer:
+    def __init__(self, diamond):
+        self.diamond = diamond
+        self.comparer = PerimeterPointToIntConverter(diamond)
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self.diamond})'
+
+    def __call__(self, left, right):
+        return self.comparer(left) - self.comparer(right)
+
 class PerimeteredDiamond(Diamond):
     def __init__(self, x, y, r):
         super().__init__(x, y, r)
         self.overlappers = set()
-        self.perimeter = [Interval(self)]
+        self.perimeter = (self.left(), (x - r + 1, y - 1))
 
     def overlaps(self, other):
         return self.distance(other.loc()) <= self.r + other.r

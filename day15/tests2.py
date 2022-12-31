@@ -3,48 +3,54 @@ from . import p2
 import sys
 
 
-class TestPerimeterPoint(unittest.TestCase):
+class TestPerimeterPointComparer(unittest.TestCase):
     def setUp(t):
-        t.point = p2.PerimeterPoint
+        t.comparer = p2.PerimeterPointComparer
+        t.diamond = p2.Diamond
 
-    def test_lessThan_returnsFalseWhenPointsEqual(t):
+    def test_returnsZeroWhenPointsEqual(t):
         cases = [
-            t.point((1, 8), (5, 8)),
-            t.point((2, 9), (5, 8)),
-            t.point((5, 10), (5, 8)),
-            t.point((5, 9), (5, 8)),
-            t.point((6, 7), (5, 8)),
-            t.point((4, 8), (5, 8))
+            (2, 5),
+            (4, 7),
+            (5, 8),
+            (7, 6),
+            (8, 5),
+            (6, 3),
+            (5, 2),
+            (4, 3)
         ]
-        for c in cases:
-            with t.subTest(c=c):
-                t.assertFalse(c < c)
+        sut = t.comparer(t.diamond(5, 5, 3))
+        for case in cases:
+            with t.subTest(sut=sut, case=case):
+                t.assertEqual(sut(case, case), 0)
 
-    def test_lessThan_returnsTrueWhenLeftIsLess(t):
+    def test_returnsNegativeWhenLeftIsLeft(t):
         cases = [
-            (t.point((-2, 0), (0, 0)), t.point((2, 0), (0, 0))),
-            (t.point((0, 2), (0, 0)), t.point((0, -2), (0, 0))),
-            (t.point((-2, 0), (0, 0)), t.point((0, 2), (0, 0))),
-            (t.point((-2, 0), (0, 0)), t.point((0, -2), (0, 0))),
-            (t.point((1, 1), (0, 0)), t.point((-1, -1), (0, 0))),
-            (t.point((-2, 0), (0, 0)), t.point((-1, -1), (0, 0)))
+            ((-2, 0), (2, 0)),
+            ((0, 2), (0, -2)),
+            ((-2, 0), (0, 2)),
+            ((-2, 0), (0, -2)),
+            ((1, 1), (-1, -1)),
+            ((-2, 0), (-1, -1))
         ]
+        sut = t.comparer(t.diamond(0, 0, 2))
         for left, right in cases:
-            with t.subTest(left=left, right=right):
-                t.assertTrue(left < right)
+            with t.subTest(sut=sut, left=left, right=right):
+                t.assertLess(sut(left, right), 0)
 
-    def test_lessThan_returnsFalseWhenLeftIsMore(t):
+    def test_returnsPositiveWhenLeftIsMore(t):
         cases = [
-            (t.point((2, 0), (0, 0)), t.point((-2, 0), (0, 0))),
-            (t.point((0, -2), (0, 0)), t.point((0, 2), (0, 0))),
-            (t.point((0, 2), (0, 0)), t.point((-2, 0), (0, 0))),
-            (t.point((0, -2), (0, 0)), t.point((-2, 0), (0, 0))),
-            (t.point((-1, -1), (0, 0)), t.point((1, 1), (0, 0))),
-            (t.point((-1, -1), (0, 0)), t.point((-2, 0), (0, 0)))
+            ((2, 0), (-2, 0)),
+            ((0, -2), (0, 2)),
+            ((0, 2), (-2, 0)),
+            ((0, -2), (-2, 0)),
+            ((-1, -1), (1, 1)),
+            ((-1, -1), (-2, 0)),
         ]
+        sut = t.comparer(t.diamond(0, 0, 2))
         for left, right in cases:
-            with t.subTest(left=left, right=right):
-                t.assertFalse(left < right)
+            with t.subTest(sut=sut, left=left, right=right):
+                t.assertGreater(sut(left, right), 0)
 
 class TestSensor(unittest.TestCase):
     def setUp(t):
