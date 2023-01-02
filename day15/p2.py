@@ -369,12 +369,16 @@ def read_input() -> tuple[list[PerimeteredDiamond], list[Diamond]]:
             lookup.append(diamond_factory.create((sx, sy), (bx, by)))
         return diamonds, lookup
 
-# sensors, _ = read_input()
+diamonds, lookup = read_input()
+bound = Square((0, 0), (4000000, 4000000))
 
-# for i, sensor in enumerate(sensors):
-#     sensor.add_overlappers(sensors[0:i])
-
-# pass
-
-# for s in sensors:
-#     print (s.desmos_repr())
+for diamond in diamonds:
+    diamond.add_overlappers(lookup)
+    diamond.constrain_perimeter(bound)
+    for overlapper in diamond.overlappers:
+        if diamond.remove_overlapping_perimeter(overlapper):
+            break
+    if diamond.perimeter:
+        sensor_loc = diamond.perimeter_as_point_intervals()[0][0]
+        print(sensor_loc[0] * 4000000 + sensor_loc[1])
+        break
