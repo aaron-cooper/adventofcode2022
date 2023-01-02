@@ -215,6 +215,9 @@ class Diamond:
     def loc(self):
         return (self.x, self.y)
 
+    def __repr__(self):
+        return f'{type(self).__name__}(x={self.x}, y={self.y}, r={self.r})'
+
 class PerimeterPointToIntConverter:
     def __init__ (self, diamond):
         self.diamond = diamond
@@ -337,9 +340,6 @@ class PerimeteredDiamond(Diamond):
                     j -= 1
                 for k in range(j, i - 1, -1):
                     self.perimeter.pop(k)
-
-    def __repr__(self):
-        return f'{type(self).__name__}(x={self.x}, y={self.y}, r={self.r})'
 
 class DiamondFactory:
     def __init__(self, diamond_class):
