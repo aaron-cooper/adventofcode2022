@@ -64,6 +64,7 @@ class TestPerimeteredDiamond(unittest.TestCase):
     def setUp(t):
         t.pdiamond = p2.PerimeteredDiamond
         t.diamond = p2.Diamond
+        t.square = p2.Square
 
     def test_overlaps_returnsFalseWhenNoOverlap(t):
         cases = [
@@ -92,6 +93,58 @@ class TestPerimeteredDiamond(unittest.TestCase):
             with t.subTest(left=left, right=right):
                 t.assertTrue(left.overlaps(right))
 
+    def test_constrain_perimeter(t):
+        cases = [
+            # diamond,   constraint,      expected perimeter
+            # diamond is completely within bounds
+            [(5, 5, 3), ((1, 1), (9, 9)), [(0, 11)]],
+            # diamond is kissing the bound on all sides
+            [(5, 5, 3), ((2, 2), (8, 8)), [(1, 2), (4, 5), (7, 8), (10, 11)]],
+            # diamond is kissing the bound on the left
+            [(5, 5, 3), ((2, 0), (10, 10)), [(1, 11)]],
+            # diamond is out of bound on the left
+            [(5, 5, 3), ((3, 0), (10, 10)), [(2, 10)]],
+            # most of the diamond is in bounds, but the corners are out of bounds
+            [(4, 5, 5), ((0, 1), (8, 8)), [(2, 2), (8, 8), (12, 13), (17, 18)]],
+            # diamond to top-left of bound, bound's corner is inside diamond
+            [(2, 8, 4), ((3, 3), (10, 7)), [(10, 10)]],
+            # top-right of bound
+            [(9, 9, 4), ((2, 2), (8, 8)), [(14, 14)]],
+            # bottom-right of bound
+            [(9, 2, 4), ((2, 2), (8, 8)), [(1, 2)]],
+            # bottom-left of bound
+            [(2, 2, 4), ((2, 2), (8, 8)), [(5, 7)]]
+        ]
+
+        for i, (diamond, constraint, expected) in enumerate(cases):
+            diamond = t.pdiamond(*diamond)
+            with t.subTest(f"case {i}: {cases[i]}"):
+                diamond.constrain_perimeter(t.square(*constraint))
+                t.assertEqual(diamond.perimeter, expected)
+
+    def test_remove_from_perimeter(t):
+        # test that empty intervals discarded properly
+        cases = [
+            # [(<diamond x y r>), [intervals...], [expected...]]
+            [(5, 5, 4), [((2, 4), (2, 6))], [(2, 14)]],
+            [(5, 5, 4), [((7, 3), (7, 7))], [(7, 9)]],
+            [(5, 5, 4), [((1, 5), (1, 5))], [(1, 15)]],
+            [(5, 5, 4), [((3, 7), (7, 7))], [(0, 1), (7, 15)]],
+            [(5, 5, 4), [((3, 7), (3, 3))], [(0, 1), (15, 15)]],
+            [(5, 5, 4), [((7, 7), (7, 3))], [(0, 5), (11, 15)]],
+            [(5, 5, 4), [((7, 3), (3, 3))], [(0, 9), (15, 15)]],
+            [(5, 5, 4), [((2, 4), (6, 8))], [(6, 14)]],
+            [(5, 5, 4), [((6, 8), (2, 4))], [(0, 4)]],
+            [(5, 5, 4), [((7, 3), (3, 3)), ((7, 3), (3, 3))], [(0, 9), (15, 15)]],
+            [(5, 5, 4), [((1, 5), (6, 8)), ((8, 6), (1, 5))], [(6, 6)]],
+            [(5, 5, 4), [((1, 5), (6, 8)), ((8, 6), (1, 5)), ((7, 7), (7, 7))], []]
+        ]
+        for i, (diamond, removals, expected) in enumerate(cases):
+            with t.subTest(f"case {i}: {cases[i]}"):
+                diamond = t.pdiamond(*diamond)
+                for interval in removals:
+                    diamond.remove_from_perimeter(interval)
+                t.assertEqual(diamond.perimeter, expected)
 
 class TestDiamondIntersectFinder(unittest.TestCase):
     def setUp(t):
@@ -143,6 +196,6 @@ if tname := '':
     suite = unittest.TestSuite()
     suite.addTests(unittest.TestLoader().loadTestsFromName(tname, sys.modules[__name__]))
 else:
-suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
+    suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
 runner = unittest.TextTestRunner()
 runner.run(suite)

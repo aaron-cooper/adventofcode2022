@@ -84,6 +84,100 @@ class DiamondIntersectionFinder:
             pts.rotate()
         return (pts[0], pts[-1])
 
+def square_intersection1(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (sx1, dx + dy - dr - sx1)
+
+def square_intersection2(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (sx1, -dx + dy + dr + sx1)
+
+def square_intersection3(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (sx1, -dx + dy - dr + sx1)
+
+def square_intersection4(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (sx1, dx + dy + dr - sx1)
+
+def square_intersection5(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (dx - dy - dr + sy2, sy2)
+
+def square_intersection6(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (dx + dy + dr - sy2, sy2)
+
+def square_intersection7(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (dx + dy - dr - sy2, sy2)
+
+def square_intersection8(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (dx - dy + dr + sy2, sy2)
+
+def square_intersection9(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (sx2, dx + dy + dr - sx2)
+
+def square_intersection10(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (sx2, -dx + dy - dr + sx2)
+
+def square_intersection11(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (sx2, -dx + dy + dr + sx2)
+
+def square_intersection12(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (sx2, dx + dy - dr - sx2)
+
+def square_intersection13(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (dx - dy + dr + sy1, sy1)
+
+def square_intersection14(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (dx + dy - dr - sy1, sy1)
+
+def square_intersection15(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (dx + dy + dr - sy1, sy1)
+
+def square_intersection16(sx1, sy1, sx2, sy2, dx, dy, dr):
+    return (dx - dy - dr + sy1, sy1)
+
+class OutOfBoundsIntervalFinder:
+    def __init__(self):
+        self.locators = [
+                [
+                    [square_intersection1, square_intersection2],
+                    [square_intersection3, square_intersection4],
+                ],
+                [
+                    [square_intersection5, square_intersection6],
+                    [square_intersection7, square_intersection8],
+                ],
+                [
+                    [square_intersection9, square_intersection10],
+                    [square_intersection11, square_intersection12],
+                ],
+                [
+                    [square_intersection13, square_intersection14],
+                    [square_intersection15, square_intersection16],
+                ],
+            ]
+        self.conds = [
+            [lambda d, s: d.left()[0] <= s.x1, lambda d, s: d.x < s.x1],
+            [lambda d, s: d.top()[1] >= s.y2, lambda d, s: d.y > s.y2],
+            [lambda d, s: d.right()[0] >= s.x2, lambda d, s: d.x > s.x2],
+            [lambda d, s: d.bottom()[1] <= s.y1, lambda d, s: d.y < s.y1]
+        ]
+
+    def __call__(self, diamond, square):
+        args = (square.x1,  square.y1, square.x2, square.y2, diamond.x, diamond.y, diamond.r)
+        for i, conds in enumerate(self.conds):
+            if not conds[0](diamond, square):
+                continue
+            j = conds[1](diamond, square)
+            locators = self.locators[i][j]
+            p = (locators[0](*args), locators[1](*args))
+            yield p
+
+
+class Square:
+    def __init__(self, lower, upper):
+        self.x1, self.y1 = lower
+        self.x2, self.y2 = upper
+
+    def __contains__(self, p):
+        return self.lower[0] <= p[0] and p[0] <= self.upper[0] and self.lower[1] <= p[1] and p[1] <= self.upper
+
 class Diamond:
     def __init__(self, x, y, r):
         self.x = x
@@ -153,6 +247,7 @@ class PerimeteredDiamond(Diamond):
         self.by_start = cmp_to_key(lambda t, i: t[0] - i)
         self.by_stop = cmp_to_key(lambda t, i: t[1] - i)
         self.perimeter = [(0, 4 * r - 1)]
+        self.bounds = OutOfBoundsIntervalFinder()
 
     def overlaps(self, other):
         return self.distance(other.loc()) <= self.r + other.r
@@ -163,17 +258,9 @@ class PerimeteredDiamond(Diamond):
                 self.overlappers.add(sensor)
                 sensor.overlappers.add(self)
 
-    def constrain_perimeter(self, min, max):
-        minx, miny = min
-        maxx, maxy = max
-        if (diff := minx - self.left()[0]) >= 0:
-            self.remove_from_perimeter((minx, self.y - diff), (minx, self.y + diff))
-        if (diff := self.right()[0] - maxx) >= 0:
-            self.remove_from_perimeter((maxx, self.y + diff), (maxx, self.y - diff))
-        if (diff := miny - self.bottom()[1]) >= 0:
-            self.remove_from_perimeter((self.x + diff, miny), (self.x - diff, miny))
-        if (diff := self.top()[1] - maxy) >= 0:
-            self.remove_from_perimeter((self.x - diff, maxy), (self.x + diff, maxy))
+    def constrain_perimeter(self, square):
+        for interval in self.bounds(self, square):
+            self.remove_from_perimeter(interval)
 
     def remove_from_perimeter(self, interval):
         start, stop = tuple(map(self.converter, interval))
@@ -190,7 +277,7 @@ class PerimeteredDiamond(Diamond):
                 self.perimeter.pop()
 
             if (i := bsearch(self.perimeter, stop, key=self.by_start)) < 0:
-            i = ~i - 1
+                i = ~i - 1
 
             if 0 <= i and stop < self.perimeter[i][1]:
                 self.perimeter[i] = (stop + 1, self.perimeter[i][1])
