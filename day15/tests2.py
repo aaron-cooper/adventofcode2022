@@ -59,6 +59,30 @@ class TestPerimeterToIntConverter(unittest.TestCase):
             with t.subTest(f'converting {val}, expecting {converted}'):
                 t.assertEqual(sut.back(val), converted)
 
+class TestDiamond(unittest.TestCase):
+    def setUp(t):
+        t.diamond = p2.Diamond
+
+    def test_fully_contains_trueWhenOtherDiamondIsFullyContained(t):
+        cases = [
+            [(0, 0, 5), (0, 0, 4)],
+            [(0, 0, 5), (0, 0, 5)],
+            [(0, 0, 5), (-3, 0, 2)],
+            [(0, 0, 5), (-2, 1, 2)]
+        ]
+        for i, (d1, d2) in enumerate(cases):
+            with t.subTest(f"case {i}: {cases[i]}"):
+                t.assertTrue(t.diamond(*d1).fully_contains(t.diamond(*d2)))
+
+    def test_fully_contains_falseWhenOtherDiamondIsNotFullyContained(t):
+        cases = [
+            [(0, 0, 5), (0, 0, 6)],
+            [(0, 0, 5), (-4, 0, 2)],
+            [(0, 0, 5), (-2, 2, 2)]
+        ]
+        for i, (d1, d2) in enumerate(cases):
+            with t.subTest(f"case {i}: {cases[i]}"):
+                t.assertFalse(t.diamond(*d1).fully_contains(t.diamond(*d2)))
 
 class TestPerimeteredDiamond(unittest.TestCase):
     def setUp(t):

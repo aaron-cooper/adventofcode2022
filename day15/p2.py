@@ -190,6 +190,9 @@ class Diamond:
     def __contains__(self, p):
         return self.distance(p) <= self.r
 
+    def fully_contains(self, diamond):
+        return diamond.r + self.distance(diamond.loc()) <= self.r
+
     def left(self):
         return (self.x - self.r, self.y)
 
