@@ -188,7 +188,7 @@ class TestDiamondIntersectFinder(unittest.TestCase):
         ]
         for right, expected in cases:
             with t.subTest(left=left, right=right, expected=expected):
-                actual = sut.intersects(left, right)
+                actual = sut(left, right)
                 t.assertEqual(actual, expected)
 
 

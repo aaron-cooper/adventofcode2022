@@ -54,7 +54,7 @@ class DiamondIntersectionFinder:
     def __init__(self):
         self.pointLocators = [PointLocator1(), PointLocator2(), PointLocator3(), PointLocator4(), PointLocator5(), PointLocator6(), PointLocator7(), PointLocator8()]
 
-    def intersects(self, left, right):
+    def __call__(self, left, right):
         params = (left.x, left.y, left.r, right.x, right.y, right.r)
         corners = [
             left.left(),
