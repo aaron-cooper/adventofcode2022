@@ -357,41 +357,20 @@ class DiamondBorderFactory:
         r = abs(beacon_loc[0] - sensor_loc[0]) + abs(beacon_loc[1] - sensor_loc[1]) + 1 # + 1 so that the edges of the diamond are the border
         return self.diamond_class(sensor_loc[0], sensor_loc[1], r)
 
-class DiamondLookup:
-    def __init__(self):
-        self.setx = SortedSet(key=lambda p: p[0])
-        self.sety = SortedSet(key=lambda p: p[1])
-        self.point_to_diamond = dict()
-
-    def add(self, diamond):
-        for corner in diamond.corners():
-            self.setx.add(corner)
-            self.sety.add(corner)
-            self._map(corner, diamond)
-
-    def nearby(self, diamond):
-        points = self.setx.irange(diamond.left(), diamond.right())
-        points = self.sety.intersection(points).irange(diamond.bottom(), diamond.top())
-        return set(chain.from_iterable(map(lambda p: self.point_to_diamond[p])))
-
-    def _map(self, point, diamond):
-        if point not in self.point_to_diamond:
-            self.point_to_diamond[point] = []
-        self.point_to_diamond[point].append(diamond)
-
-def read_input():
+def read_input() -> tuple[list[PerimeteredDiamond], list[Diamond]]:
     with open('input.txt', 'r') as f:
         diamond_factory = DiamondFactory(Diamond)
         border_factory = DiamondBorderFactory(PerimeteredDiamond)
 
         diamonds = []
-        lookup = DiamondLookup()
+        lookup = []
 
         for line in map(lambda l: l.strip(), f):
             m = re.search(r"Sensor at x=([+-]?\d+), y=([+-]?\d+): closest beacon is at x=([+-]?\d+), y=([+-]?\d+)", line)
             sx, sy, bx, by = m.groups()
+            sx, sy, bx, by = int(sx), int(sy), int(bx), int(by)
             diamonds.append(border_factory.create((sx, sy), (bx, by)))
-            lookup.add(diamond_factory.create((sx, sy), (bx, by)))
+            lookup.append(diamond_factory.create((sx, sy), (bx, by)))
         return diamonds, lookup
 
 # sensors, _ = read_input()
