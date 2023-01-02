@@ -60,7 +60,7 @@ class TestPerimeterToIntConverter(unittest.TestCase):
                 t.assertEqual(sut.back(val), converted)
 
 
-class TestSensor(unittest.TestCase):
+class TestPerimeteredDiamond(unittest.TestCase):
     def setUp(t):
         t.pdiamond = p2.PerimeteredDiamond
         t.diamond = p2.Diamond
@@ -139,6 +139,10 @@ class TestDiamondIntersectFinder(unittest.TestCase):
                 t.assertEqual(actual, expected)
 
 
+if tname := '':
+    suite = unittest.TestSuite()
+    suite.addTests(unittest.TestLoader().loadTestsFromName(tname, sys.modules[__name__]))
+else:
 suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
 runner = unittest.TextTestRunner()
 runner.run(suite)
