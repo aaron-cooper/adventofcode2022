@@ -306,10 +306,10 @@ class PerimeteredDiamond(Diamond):
                 if left[0] <= left[1]:
                     self.perimeter.insert(i, left)
             else:
-                if self.perimeter[i][0] < start:
+                if i < len(self.perimeter) and self.perimeter[i][0] < start:
                     self.perimeter[i] = (self.perimeter[i][0], start - 1)
                     i += 1
-                if stop < self.perimeter[j][1]:
+                if 0 <= j and stop < self.perimeter[j][1]:
                     self.perimeter[j] = (stop + 1, self.perimeter[j][1])
                     j -= 1
                 for k in range(j, i - 1, -1):
