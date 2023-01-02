@@ -13,6 +13,4 @@ parser.add_argument("day", type=int)
 parser.add_argument("part", type=int)
 args = parser.parse_args()
 
-copy(f'day{str(args.day).zfill(2)}/input.txt', 'input.txt')
-
 exec(f"from day{str(args.day).zfill(2)} import tests{args.part}")
