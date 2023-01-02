@@ -257,11 +257,10 @@ class PerimeteredDiamond(Diamond):
     def overlaps(self, other):
         return self.distance(other.loc()) <= self.r + other.r
 
-    def add_overlappers(self, sensor_iter):
-        for sensor in sensor_iter:
-            if self.overlaps(sensor):
-                self.overlappers.add(sensor)
-                sensor.overlappers.add(self)
+    def add_overlappers(self, diamonds):
+        for diamond in diamonds:
+            if self.overlaps(diamond) and self.loc() != diamond.loc():
+                self.overlappers.add(diamond)
 
     def constrain_perimeter(self, square):
         for interval in self.find_bounds_intersection(self, square):
