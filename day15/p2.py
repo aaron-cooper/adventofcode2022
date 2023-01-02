@@ -240,6 +240,8 @@ class PerimeterPointToIntConverter:
 
 
 class PerimeteredDiamond(Diamond):
+    find_bounds_intersection = OutOfBoundsIntervalFinder()
+    find_intersections = DiamondIntersectionFinder()
     def __init__(self, x, y, r):
         super().__init__(x, y, r)
         self.overlappers = set()
@@ -247,7 +249,6 @@ class PerimeteredDiamond(Diamond):
         self.by_start = cmp_to_key(lambda t, i: t[0] - i)
         self.by_stop = cmp_to_key(lambda t, i: t[1] - i)
         self.perimeter = [(0, 4 * r - 1)]
-        self.bounds = OutOfBoundsIntervalFinder()
 
     def overlaps(self, other):
         return self.distance(other.loc()) <= self.r + other.r
@@ -259,7 +260,7 @@ class PerimeteredDiamond(Diamond):
                 sensor.overlappers.add(self)
 
     def constrain_perimeter(self, square):
-        for interval in self.bounds(self, square):
+        for interval in self.find_bounds_intersection(self, square):
             self.remove_from_perimeter(interval)
 
     def remove_from_perimeter(self, interval):
