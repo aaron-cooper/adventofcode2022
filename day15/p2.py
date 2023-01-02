@@ -1,8 +1,5 @@
 import re
 from helpers.bsearch import bsearch
-from collections import deque
-from sortedcontainers import SortedSet
-from itertools import chain
 from functools import cmp_to_key
 
 class PointLocator:
@@ -11,7 +8,6 @@ class PointLocator:
 
     def floor_div(self, n):
         return n >> 1
-
 
 class PointLocator1(PointLocator):
     def __call__(self, x1, y1, r1, x2, y2, r2):
