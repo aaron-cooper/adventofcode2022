@@ -3,6 +3,7 @@ from helpers.bsearch import bsearch
 from collections import deque
 from sortedcontainers import SortedSet
 from itertools import chain
+from functools import cmp_to_key
 
 class PointLocator:
     def ceil_div(self, n):
@@ -149,8 +150,8 @@ class PerimeteredDiamond(Diamond):
         super().__init__(x, y, r)
         self.overlappers = set()
         self.converter = PerimeterPointToIntConverter(self)
-        self.by_start = lambda i: i[0]
-        self.by_stop = lambda i: i[1]
+        self.by_start = cmp_to_key(lambda t, i: t[0] - i)
+        self.by_stop = cmp_to_key(lambda t, i: t[1] - i)
         self.perimeter = [(0, 4 * r - 1)]
 
     def overlaps(self, other):
@@ -175,26 +176,53 @@ class PerimeteredDiamond(Diamond):
             self.remove_from_perimeter((self.x - diff, maxy), (self.x + diff, maxy))
 
     def remove_from_perimeter(self, interval):
-        interval = tuple(map(self.converter, interval))
-        if (i := bsearch(self.perimeter, interval, key=self.by_start)) < 0:
+        start, stop = tuple(map(self.converter, interval))
+
+        if stop < start:
+            if (i := bsearch(self.perimeter, start, key=self.by_stop)) < 0:
+                i = ~i
+
+            if i < len(self.perimeter) and self.perimeter[i][0] < start:
+                self.perimeter[i] = (self.perimeter[i][0], start - 1)
+                i += 1
+
+            while i < len(self.perimeter):
+                self.perimeter.pop()
+
+            if (i := bsearch(self.perimeter, stop, key=self.by_start)) < 0:
             i = ~i - 1
-        if (j := bsearch(self.perimeter, interval, key=self.by_stop)) < 0:
-            j = ~j
 
-        for j in range(j - 1, i, -1):
-            if j < len(self.perimeter):
-                self.perimeter.pop(j)
+            if 0 <= i and stop < self.perimeter[i][1]:
+                self.perimeter[i] = (stop + 1, self.perimeter[i][1])
+                i -= 1
 
-        if 0 <= j and j < len(self.perimeter):
-            self.perimeter[j][0] = interval[1] + 1
-            if self.perimeter[j][1] < self.perimeter[j][0]:
-                self.perimeter.pop(j)
-        if 0 <= i and i < len(self.perimeter):
-            self.perimeter[i][1] = interval[0] - 1
-            if self.perimeter[i][1] < self.perimeter[i][0]:
+            while 0 <= i:
                 self.perimeter.pop(i)
-        return bool(len(self.perimeter))
+                i -= 1
 
+        else:
+            if (i := bsearch(self.perimeter, start, self.by_stop)) < 0:
+                i = ~i
+            if (j := bsearch(self.perimeter, stop, self.by_start)) < 0:
+                j = ~j - 1
+
+            if i == j:
+                old = self.perimeter.pop(i)
+                left = (old[0], start - 1)
+                right = (stop + 1, old[1])
+                if right[0] <= right[1]:
+                    self.perimeter.insert(i, right)
+                if left[0] <= left[1]:
+                    self.perimeter.insert(i, left)
+            else:
+                if self.perimeter[i][0] < start:
+                    self.perimeter[i] = (self.perimeter[i][0], start - 1)
+                    i += 1
+                if stop < self.perimeter[j][1]:
+                    self.perimeter[j] = (stop + 1, self.perimeter[j][1])
+                    j -= 1
+                for k in range(j, i - 1, -1):
+                    self.perimeter.pop(k)
 
     def __repr__(self):
         return f'{type(self).__name__}(x={self.x}, y={self.y}, r={self.r})'
