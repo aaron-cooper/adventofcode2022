@@ -266,6 +266,29 @@ class PerimeteredDiamond(Diamond):
         for interval in self.find_bounds_intersection(self, square):
             self.remove_from_perimeter(interval)
 
+    def remove_overlapping_perimeter(self, diamond):
+        if self.fully_contains(diamond):
+            return False
+
+        if diamond.fully_contains(self):
+            self.perimeter.clear()
+            return True
+
+        interval = self.find_intersections(self, diamond)
+        self.remove_from_perimeter(interval)
+        return 0 == len(self.perimeter)
+
+    def perimeter_length(self):
+        if len(self.perimeter) == 0:
+            return 0
+        length = 0
+        for start, stop in self.perimeter:
+            length += stop - start + 1
+        return length
+
+    def perimeter_as_point_intervals(self):
+        return list(map(lambda i: (self.converter.back(i[0]), self.converter.back(i[1])), self.perimeter))
+
     def remove_from_perimeter(self, interval):
         start, stop = tuple(map(self.converter, interval))
 
