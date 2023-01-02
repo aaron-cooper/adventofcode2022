@@ -46,43 +46,44 @@ class PointLocator8(PointLocator):
         return (self.ceil_div(-(-x1-y1-x2+y2+r1+r2)), self.floor_div(-(-x1-y1+x2-y2+r1-r2)))
 
 class DiamondIntersectionFinder:
+    pointLocators = [
+        PointLocator1(),
+        PointLocator2(),
+        PointLocator3(),
+        PointLocator4(),
+        PointLocator5(),
+        PointLocator6(),
+        PointLocator7(),
+        PointLocator8(),
+    ]
     LEFT = 0
     TOP = 2
     RIGHT = 4
     BOTTOM = 6
-
-    def __init__(self):
-        self.pointLocators = [PointLocator1(), PointLocator2(), PointLocator3(), PointLocator4(), PointLocator5(), PointLocator6(), PointLocator7(), PointLocator8()]
+    corner_inds = [LEFT, TOP, RIGHT, BOTTOM]
+    center_inds = [0, 2, 6, 4]
 
     def __call__(self, left, right):
         params = (left.x, left.y, left.r, right.x, right.y, right.r)
-        corners = [
-            left.left(),
-            left.top(),
-            left.right(),
-            left.bottom()
-        ]
+        corners = list(left.corners())
 
-        pts = deque()
-        for corner, i in zip(corners, [self.LEFT, self.TOP, self.RIGHT, self.BOTTOM]):
-            if corner not in left:
-                continue
-            p1 = self.pointLocators[i](*params)
-            if p1 in left and p1 in right:
-                pts.append(p1)
-                p2 = self.pointLocators[i + 1](*params)
-                if p2 in left and p2 in right:
-                    pts.append(None)
-                    pts.append(p2)
-        if (pts[0] == pts[-1]):
-            return (pts[0], pts[-1])
-        if pts[0] in corners:
-            pts.popleft()
-        if pts[-1] in corners:
-            pts.pop()
-        while(pts[0] == None or pts[-1] == None):
-            pts.rotate()
-        return (pts[0], pts[-1])
+        i = 0
+        while i != 4 and corners[i] not in right:
+            i += 1
+
+        if i == 4: # no corners from left are in right
+            i = int(left.x < right.x)
+            i <<= 1
+            i += int(left.y < right.y)
+            return (self.pointLocators[self.center_inds[i]](*params), self.pointLocators[self.center_inds[i] - 1](*params))
+        else:
+            while corners[i] in right:
+                i -= 1
+            going_in = self.corner_inds[i + 1]
+            while corners[i] not in right:
+                i -= 1
+            coming_out = self.corner_inds[i]
+            return (self.pointLocators[going_in](*params), self.pointLocators[coming_out + 1](*params))
 
 def square_intersection1(sx1, sy1, sx2, sy2, dx, dy, dr):
     return (sx1, dx + dy - dr - sx1)
